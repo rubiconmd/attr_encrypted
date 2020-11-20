@@ -1,4 +1,9 @@
+## Maintainer(s) wanted!!!
+
+**If you have an interest in maintaining this project... please see https://github.com/attr-encrypted/attr_encrypted/issues/379**
+
 # attr_encrypted
+
 [![Build Status](https://secure.travis-ci.org/attr-encrypted/attr_encrypted.svg)](https://travis-ci.org/attr-encrypted/attr_encrypted) [![Test Coverage](https://codeclimate.com/github/attr-encrypted/attr_encrypted/badges/coverage.svg)](https://codeclimate.com/github/attr-encrypted/attr_encrypted/coverage) [![Code Climate](https://codeclimate.com/github/attr-encrypted/attr_encrypted/badges/gpa.svg)](https://codeclimate.com/github/attr-encrypted/attr_encrypted) [![Gem Version](https://badge.fury.io/rb/attr_encrypted.svg)](https://badge.fury.io/rb/attr_encrypted) [![security](https://hakiri.io/github/attr-encrypted/attr_encrypted/master.svg)](https://hakiri.io/github/attr-encrypted/attr_encrypted/master)
 
 Generates attr_accessors that transparently encrypt and decrypt attributes.
@@ -11,7 +16,7 @@ It works with ANY class, however, you get a few extra features when you're using
 Add attr_encrypted to your gemfile:
 
 ```ruby
-  gem "attr_encrypted", "~> 3.0.0"
+  gem "attr_encrypted", "~> 3.1.0"
 ```
 
 Then install the gem:
@@ -86,6 +91,12 @@ Create or modify the table that your model uses to add a column with the `encryp
 ```
 
 You can use a string or binary column type. (See the encode option section below for more info)
+
+If you use the same key for each record, add a unique index on the IV. Repeated IVs with AES-GCM (the default algorithm) allow an attacker to recover the key.
+
+```ruby
+  add_index :users, :encrypted_ssn_iv, unique: true
+```
 
 ### Specifying the encrypted attribute name
 
@@ -440,7 +451,7 @@ When storing your encrypted data, please consider the length requirements of the
 It is advisable to also store metadata regarding the circumstances of your encrypted data. Namely, you should store information about the key used to encrypt your data, as well as the algorithm. Having this metadata with every record will make key rotation and migrating to a new algorithm signficantly easier. It will allow you to continue to decrypt old data using the information provided in the metadata and new data can be encrypted using your new key and algorithm of choice.
 
 #### Enforcing the IV as a nonce
-On a related note, most alorithms require that your IV be unique for every record and key combination. You can enforce this using composite unique indexes on your IV and encryption key name/id column. [RFC 5084](https://tools.ietf.org/html/rfc5084#section-1.5)
+On a related note, most algorithms require that your IV be unique for every record and key combination. You can enforce this using composite unique indexes on your IV and encryption key name/id column. [RFC 5084](https://tools.ietf.org/html/rfc5084#section-1.5)
 
 #### Unique key per record
 Lastly, while the `:per_attribute_iv_and_salt` mode is more secure than `:per_attribute_iv` mode because it uses a unique key per record, it uses a PBKDF function which introduces a huge performance hit (175x slower by my benchmarks). There are other ways of deriving a unique key per record that would be much faster.

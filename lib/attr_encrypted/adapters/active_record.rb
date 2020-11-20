@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 if defined?(ActiveRecord::Base)
   module AttrEncrypted
     module Adapters
@@ -134,6 +136,8 @@ if defined?(ActiveRecord::Base)
     end
   end
 
-  ActiveRecord::Base.extend AttrEncrypted
-  ActiveRecord::Base.extend AttrEncrypted::Adapters::ActiveRecord
+  ActiveSupport.on_load(:active_record) do
+    extend AttrEncrypted
+    extend AttrEncrypted::Adapters::ActiveRecord
+  end
 end
